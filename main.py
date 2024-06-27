@@ -23,17 +23,20 @@ class peice:
         self.pos = position
         
         self.shape = shape
-        self.draw_at(position)
-    def draw_at(self, pos):
+        self.draw()
+    def draw(self):
         for square in self.shape:
-            offset_x = square[0] + pos[0]
-            offset_y = square[1] + pos[1]
+            offset_x = square[0] + self.pos[0]
+            offset_y = square[1] + self.pos[1]
             
             new_pos = (offset_x,offset_y)
-            thesquare = squares[new_pos]
+            try: # make sure that the square 
+                thesquare = squares[new_pos]
+            except:
+                return False
             
             thesquare["color"] = (255,0,255)
-            thesquare["state"] = 0
+            thesquare["state"] = 1
             
 
 screen = pygame.display.set_mode((window_width, window_height))
@@ -51,6 +54,8 @@ for line in range(lines):
         sq.bottomleft = (board.bottomleft[0] + gap + ((i * gap) + (i * sq_width)), board.bottomleft[1] - gap - ((line * gap) + (line * sq_width))) 
         
         squares[(i, line)] = {"rect": sq, "color": (255,255,255), "state": 0}
+current_pos = (0,lines - 1)
+peices = peice(I, current_pos)
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -67,8 +72,8 @@ while running:
         gravity_wait = 0
     gravity_wait += 1
         
-    
-    peices = peice(I, (5,lines - 1))
+    peices.pos = (1,5)
+    peices.draw()
 
     for square in squares.values():
         pygame.draw.rect(screen, square["color"], square["rect"])
