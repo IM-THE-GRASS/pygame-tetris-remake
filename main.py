@@ -42,7 +42,6 @@ class peice:
             except:
                 self.pos = self.last_valid_pos
                 return False
-        print(self.current)
         for square in self.current:
             thesquare = squares[square]
             thesquare["color"] = (255,255,255)
@@ -53,7 +52,6 @@ class peice:
             position["color"] = (255,0,255)
             position["state"] = 1
             self.current[square] = 1
-            print(self.current)
             self.last_valid_pos = self.pos
             
             
@@ -85,6 +83,11 @@ while running:
                 peices.pos = (peices.pos[0] - 1, peices.pos[1])
             if event.key == pygame.K_DOWN:
                 peices.pos = (peices.pos[0], peices.pos[1] - 1)
+            if event.key == pygame.K_SPACE:
+                peices.pos = (peices.pos[0], peices.pos[1] - 1)
+                for i in range(lines):
+                    print(i)
+                    peices.pos = (peices.pos[0], 0)
     
     screen.fill((255, 255, 255))
     pygame.draw.rect(screen, (0,0,0), board)
