@@ -21,22 +21,41 @@ I = ((0,0),(1,0),(2,0),(3,0))
 class peice:
     def __init__(self,shape, position) -> None:
         self.pos = position
-        
         self.shape = shape
+        self.current = {}
+        self.last_valid_pos = ()
         self.draw()
+        
+        
     def draw(self):
+        new_current = {}
+        
+        
+        
         for square in self.shape:
-            offset_x = square[0] + self.pos[0]
-            offset_y = square[1] + self.pos[1]
-            
-            new_pos = (offset_x,offset_y)
-            try: # make sure that the square 
-                thesquare = squares[new_pos]
+            new_x = square[0] + self.pos[0]
+            new_y = square[1] + self.pos[1]
+            new_pos = (new_x,new_y)
+        
+            try: # make sure that the square that is trying to go to actually exists
+                new_current[new_pos] = squares[new_pos]
             except:
+                self.pos = self.last_valid_pos
                 return False
+        print(self.current)
+        for square in self.current:
+            thesquare = squares[square]
+            thesquare["color"] = (255,255,255)
+            thesquare["state"] = 0
+        self.current.clear()
+        for square in new_current:
+            position = squares[square]
+            position["color"] = (255,0,255)
+            position["state"] = 1
+            self.current[square] = 1
+            print(self.current)
+            self.last_valid_pos = self.pos
             
-            thesquare["color"] = (255,0,255)
-            thesquare["state"] = 1
             
 
 screen = pygame.display.set_mode((window_width, window_height))
@@ -54,14 +73,18 @@ for line in range(lines):
         sq.bottomleft = (board.bottomleft[0] + gap + ((i * gap) + (i * sq_width)), board.bottomleft[1] - gap - ((line * gap) + (line * sq_width))) 
         
         squares[(i, line)] = {"rect": sq, "color": (255,255,255), "state": 0}
-current_pos = (0,lines - 1)
-peices = peice(I, current_pos)
+peices = peice(I, (0,lines - 1))
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        if event.type == pygame.K_RIGHT:
-            print("roght")
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RIGHT:
+                peices.pos = (peices.pos[0] + 1, peices.pos[1])
+            if event.key == pygame.K_LEFT:
+                peices.pos = (peices.pos[0] - 1, peices.pos[1])
+            if event.key == pygame.K_DOWN:
+                peices.pos = (peices.pos[0], peices.pos[1] - 1)
     
     screen.fill((255, 255, 255))
     pygame.draw.rect(screen, (0,0,0), board)
@@ -69,10 +92,10 @@ while running:
     clock.tick(60)
     if gravity_wait > 60:
         print("down")
+        peices.pos = (peices.pos[0],peices.pos[1] - 1)
         gravity_wait = 0
     gravity_wait += 1
         
-    peices.pos = (1,5)
     peices.draw()
 
     for square in squares.values():
