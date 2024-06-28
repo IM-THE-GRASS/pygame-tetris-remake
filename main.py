@@ -17,7 +17,7 @@ window_width = 400
 window_height = 600
 
 center = (window_width/2,window_height/2)
-I = ((0,0),(1,0),(2,0),(3,0))
+I = ((0,0),(2,0),(1,0),(8,0))
 class peice:
     def __init__(self,shape, position) -> None:
         self.pos = position
@@ -53,7 +53,12 @@ class peice:
             position["state"] = 1
             self.current[square] = 1
             self.last_valid_pos = self.pos
-            
+def rotate_r(peice):
+    peice.shape = ((0,0))
+    print("hi")
+def rotate_l(peice):
+    print("hi")
+               
             
 
 screen = pygame.display.set_mode((window_width, window_height))
@@ -76,6 +81,11 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if event.type == pygame.MOUSEBUTTONUP:
+            if event.button == pygame .BUTTON_RIGHT:
+                rotate_r(peices)
+            if event.button == pygame.BUTTON_LEFT:
+                rotate_l(peices)
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RIGHT:
                 peices.pos = (peices.pos[0] + 1, peices.pos[1])
