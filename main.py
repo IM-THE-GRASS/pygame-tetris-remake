@@ -24,7 +24,7 @@ O = {0:((0,0),(0,1),(1,0),(1,1)),1:((0,0),(0,1),(1,0),(1,1)),2:((0,0),(0,1),(1,0
 L = {0:((0,0),(0,1),(0,-1),(1,-1)),1:((0,0),(1,0),(-1,0),(-1,-1)),2:((0,0),(0,-1),(0,1),(-1,1)),3:((0,0),(1,1),(-1,0),(1,0))}
 J = {0:((0,0),(0,-1),(0,1),(-1,-1)),1:((0,0),(1,0),(-1,0),(1,-1)),2:((0,0),(0,-1),(1,1),(0,1)),3:((0,0),(-1,1),(-1,0),(1,0))}
 S = {0:((0,0),(-1,0),(0,1),(1,1)),1:((0,0),(0,1),(1,0),(1,-1)),2:((0,0),(0,-1),(-1,-1),(1,0)),3:((0,0),(-1,0),(0,-1),(-1,1))}
-Z = {0:((0,0),(),(),()),1:((0,0),(),(),()),2:((0,0),(),(),()),3:((0,0),(),(),())}
+Z = {0:((0,0),(1, 0),(-1, 1),(0, 1)),1:((0,0),(-1,0),(0,1),(-1,-1)),2:((0,0),(-1,0),(0,-1),(1,-1)),3:((0,0),(0,-1),(1,1),(1,0))}
 
 
 
@@ -37,6 +37,7 @@ class peice:
         self.current_positions = {}
         self.last_valid_pos = ()
         self.draw()
+        self.grounded = False
         
         
         
@@ -105,40 +106,46 @@ for line in range(lines):
         sq.bottomleft = (board.bottomleft[0] + gap + ((i * gap) + (i * sq_width)), board.bottomleft[1] - gap - ((line * gap) + (line * sq_width))) 
         
         squares[(i, line)] = {"rect": sq, "color": (255,255,255), "state": 0}
-peices = peice(S, start_pos)
+current_peice = peice(Z, start_pos)
+
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.MOUSEBUTTONUP:
             if event.button == pygame .BUTTON_RIGHT:
-                peices.rotate_r()
+                current_peice.rotate_r()
             if event.button == pygame.BUTTON_LEFT:
-                peices.rotate_l()
+                current_peice.rotate_l()
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RIGHT:
-                peices.pos = (peices.pos[0] + 1, peices.pos[1])
+                current_peice.pos = (current_peice.pos[0] + 1, current_peice.pos[1])
             if event.key == pygame.K_LEFT:
-                peices.pos = (peices.pos[0] - 1, peices.pos[1])
+                current_peice.pos = (current_peice.pos[0] - 1, current_peice.pos[1])
             if event.key == pygame.K_DOWN:
-                peices.pos = (peices.pos[0], peices.pos[1] - 1)
+                current_peice.pos = (current_peice.pos[0], current_peice.pos[1] - 1)
             if event.key == pygame.K_SPACE:
-                peices.pos = (peices.pos[0], peices.pos[1] - 1)
+                current_peice.pos = (current_peice.pos[0], current_peice.pos[1] - 1)
                 for i in range(lines):
-                    print(i)
-                    peices.pos = (peices.pos[0], 0)
-    
+                    current_peice.pos = (current_peice.pos[0], 0)
+    print(current_peice.grounded)
+    current_positions = current_peice.current_positions.keys()
+    for sq_pos in current_positions:
+        print(sq_pos)
+        if sq_pos[1] < 1 and current_peice.grounded == False:
+            current_peice.grounded = True
+            
+            
     screen.fill((255, 255, 255))
     pygame.draw.rect(screen, (0,0,0), board)
     
     clock.tick(60)
     if gravity_wait > 60:
-        print("down")
-        peices.pos = (peices.pos[0],peices.pos[1] - 1)
+        current_peice.pos = (current_peice.pos[0],current_peice.pos[1] - 1)
         gravity_wait = 0
     gravity_wait += 1
         
-    peices.draw()
+    current_peice.draw()
 
     for square in squares.values():
         pygame.draw.rect(screen, square["color"], square["rect"])
