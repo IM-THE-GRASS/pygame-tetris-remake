@@ -9,7 +9,6 @@ board_height = 400
 columns = 13
 gap = 2
 sq_width = (board_width - (gap * (columns + 1))) / columns 
-print(sq_width)
 lines = int(board_height / (sq_width + gap))
 squares = {}
 gravity_wait = 0
@@ -60,27 +59,22 @@ class peice:
                 self.pos = self.last_valid_pos
                 return False
             
-        for square in self.current_positions:
-            thesquare = squares[square]
+        for sq in self.current_positions:
+            thesquare = squares[sq]
             
             thesquare["state"] = 0
-        
-        for sq in self.shape[self.rotation]:
-            print(sq)
-            if squares[new_pos]["state"] == 1:
-                new_x = sq[0] + self.pos[0]
-                new_y = sq[1] + self.pos[1]
-                new_pos = (new_x,new_y)
-                self.pos = self.last_valid_pos
-                self.touching_others = True
-                return False
-            else:
-                self.touching_others = False
-                
-        for sq in self.current_positions:
             thesquare = squares[sq]
             thesquare["color"] = (255,255,255)
         self.current_positions.clear()
+        for sq in new_current:
+            square = squares[sq]
+            if square["state"] == 1:
+                self.touching_others = True
+                self.pos = self.last_valid_pos
+                self.draw()
+                return False
+            
+        
         for square in new_current:
             position = squares[square]
             position["color"] = (255,0,255)
@@ -132,12 +126,9 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        if event.type == pygame.MOUSEBUTTONUP:
-            if event.button == pygame .BUTTON_RIGHT:
-                current_peice.rotate_r()
-            if event.button == pygame.BUTTON_LEFT:
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_UP:
                 current_peice.rotate_l()
-        if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RIGHT:
                 current_peice.pos = (current_peice.pos[0] + 1, current_peice.pos[1])
             if event.key == pygame.K_LEFT:
@@ -178,6 +169,6 @@ while running:
     gravity_wait += 1
 
     for square in squares.values():
-        pygame.draw.rect(screen, square["color"], square["rect"])
+        pygame.draw.rect(screen,square["color"],square["rect"])
     
     pygame.display.flip()
