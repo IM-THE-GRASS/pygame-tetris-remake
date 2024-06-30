@@ -1,5 +1,5 @@
 import pygame
-
+import random
 
 pygame.init()
 board_width = 200
@@ -25,7 +25,7 @@ L = {0:((0,0),(0,1),(0,-1),(1,-1)),1:((0,0),(1,0),(-1,0),(-1,-1)),2:((0,0),(0,-1
 J = {0:((0,0),(0,-1),(0,1),(-1,-1)),1:((0,0),(1,0),(-1,0),(1,-1)),2:((0,0),(0,-1),(1,1),(0,1)),3:((0,0),(-1,1),(-1,0),(1,0))}
 S = {0:((0,0),(-1,0),(0,1),(1,1)),1:((0,0),(0,1),(1,0),(1,-1)),2:((0,0),(0,-1),(-1,-1),(1,0)),3:((0,0),(-1,0),(0,-1),(-1,1))}
 Z = {0:((0,0),(1, 0),(-1, 1),(0, 1)),1:((0,0),(-1,0),(0,1),(-1,-1)),2:((0,0),(-1,0),(0,-1),(1,-1)),3:((0,0),(0,-1),(1,1),(1,0))}
-
+peices = [I, T, O, L, J, S, Z]
 
 
 
@@ -42,7 +42,12 @@ class peice:
         self.draw()
         
         
-        
+    def hard_drop(self):
+        while not self.grounded and not self.touching_others:
+            self.pos = (self.pos[0], self.pos[1] - 1)
+            self.draw()
+        self.pos = (self.pos[0], self.pos[1] + 1)
+        self.draw()
     def draw(self):
         new_current = {}
 
@@ -81,6 +86,7 @@ class peice:
             position["state"] = 1
             self.current_positions[square] = 1
             self.last_valid_pos = self.pos
+        return True
     def rotate_r(self):
         if self.rotation >= 3:
             self.rotation = 0 
@@ -89,8 +95,6 @@ class peice:
         draw = self.draw()
         if draw == False and self.rotation >= 3:
             self.rotation = self.rotation - 1
-        
-            
     def rotate_l(self):
         if self.rotation <= 0:
             self.rotation = 3 
@@ -100,7 +104,11 @@ class peice:
         if draw == False and self.rotation < 0:
             self.rotation = self.rotation + 1
                
-            
+def get_random_peice():
+    random_peice = random.choice(peices)
+    return random_peice
+    
+        
 
 screen = pygame.display.set_mode((window_width, window_height))
 pygame.display.set_caption("pygame tetris")
@@ -117,7 +125,7 @@ for line in range(lines):
         sq.bottomleft = (board.bottomleft[0] + gap + ((i * gap) + (i * sq_width)), board.bottomleft[1] - gap - ((line * gap) + (line * sq_width))) 
         
         squares[(i, line)] = {"rect": sq, "color": (255,255,255), "state": 0}
-current_peice = peice(Z, start_pos)
+current_peice = peice(get_random_peice(), start_pos)
 lock_timer = 0
 lock_timer_enabled = False
 lock_delay = lock_delay * 60
@@ -136,9 +144,15 @@ while running:
             if event.key == pygame.K_DOWN:
                 current_peice.pos = (current_peice.pos[0], current_peice.pos[1] - 1)
             if event.key == pygame.K_SPACE:
-                current_peice.pos = (current_peice.pos[0], current_peice.pos[1] - 1)
-                for i in range(lines):
-                    current_peice.pos = (current_peice.pos[0], 0)
+                worked = True  
+                while worked == True:
+                    current_peice.pos = (current_peice.pos[0], current_peice.pos[1] - 1)
+                    worked = current_peice.draw()
+                    print(worked)
+                    print(current_peice.pos[1] - 1)
+                lock_timer = 999
+                    
+                    
     current_positions = current_peice.current_positions.keys()
     for sq_pos in current_positions:
         if sq_pos[1] < 1 and current_peice.grounded == False:
@@ -151,7 +165,7 @@ while running:
     if lock_timer_enabled:
     
         if lock_timer >= lock_delay:
-            current_peice = peice(L, start_pos)
+            current_peice = peice(get_random_peice(), start_pos)
             lock_timer_enabled = False
             lock_timer = 0
         lock_timer += 1
