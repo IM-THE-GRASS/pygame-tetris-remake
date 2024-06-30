@@ -37,30 +37,49 @@ class peice:
         self.shape = shape
         self.current_positions = {}
         self.last_valid_pos = ()
-        self.draw()
+        
         self.grounded = False
+        self.touching_others = False
+        self.draw()
         
         
         
     def draw(self):
         new_current = {}
-        
+
         
         
         for square in self.shape[self.rotation]:
             new_x = square[0] + self.pos[0]
             new_y = square[1] + self.pos[1]
             new_pos = (new_x,new_y)
-        
+            
             try: # make sure that the square that is trying to go to actually exists
                 new_current[new_pos] = squares[new_pos]
             except:
                 self.pos = self.last_valid_pos
                 return False
+            
         for square in self.current_positions:
             thesquare = squares[square]
-            thesquare["color"] = (255,255,255)
+            
             thesquare["state"] = 0
+        
+        for sq in self.shape[self.rotation]:
+            print(sq)
+            if squares[new_pos]["state"] == 1:
+                new_x = sq[0] + self.pos[0]
+                new_y = sq[1] + self.pos[1]
+                new_pos = (new_x,new_y)
+                self.pos = self.last_valid_pos
+                self.touching_others = True
+                return False
+            else:
+                self.touching_others = False
+                
+        for sq in self.current_positions:
+            thesquare = squares[sq]
+            thesquare["color"] = (255,255,255)
         self.current_positions.clear()
         for square in new_current:
             position = squares[square]
@@ -79,16 +98,13 @@ class peice:
         
             
     def rotate_l(self):
-        print(self.rotation)
         if self.rotation <= 0:
             self.rotation = 3 
         else:
             self.rotation = self.rotation - 1
-        print(self.rotation)
         draw = self.draw()
         if draw == False and self.rotation < 0:
             self.rotation = self.rotation + 1
-        print(self.rotation)
                
             
 
@@ -136,16 +152,18 @@ while running:
     for sq_pos in current_positions:
         if sq_pos[1] < 1 and current_peice.grounded == False:
             current_peice.grounded = True
-    if current_peice.grounded and lock_timer_enabled == False:
-        print("as")
+    if current_peice.grounded or current_peice.touching_others:
         lock_timer_enabled = True
-        print(lock_timer_enabled)
-        
-    if lock_timer_enabled and lock_timer >= lock_delay:
-        current_peice = peice(L, start_pos)
+    else:
         lock_timer_enabled = False
-        lock_timer = 0
-    lock_timer += 1
+    
+    if lock_timer_enabled:
+    
+        if lock_timer >= lock_delay:
+            current_peice = peice(L, start_pos)
+            lock_timer_enabled = False
+            lock_timer = 0
+        lock_timer += 1
         
         
     current_peice.draw()
