@@ -138,11 +138,12 @@ while running:
             current_peice.grounded = True
     if current_peice.grounded and lock_timer_enabled == False:
         print("as")
-        lock_timer_enabled == True
+        lock_timer_enabled = True
         print(lock_timer_enabled)
         
     if lock_timer_enabled and lock_timer >= lock_delay:
         current_peice = peice(L, start_pos)
+        lock_timer_enabled = False
         lock_timer = 0
     lock_timer += 1
         
