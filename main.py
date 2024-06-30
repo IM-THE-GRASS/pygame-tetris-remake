@@ -16,6 +16,7 @@ gravity_wait = 0
 window_width = 400
 window_height = 600
 start_pos = (int(columns / 2), lines - 4)
+lock_delay = 3
 
 center = (window_width/2,window_height/2)
 I = {0:((0,0),(1,0),(2,0),(3,0)), 1:((0,-0),(0,-1),(0,-2),(0,-3)),2:((0,0),(-1,0),(-2,0),(-3,0)), 3:((0,0),(0,1),(0,2),(0,3))}
@@ -107,8 +108,11 @@ for line in range(lines):
         
         squares[(i, line)] = {"rect": sq, "color": (255,255,255), "state": 0}
 current_peice = peice(Z, start_pos)
-
+lock_timer = 0
+lock_timer_enabled = False
+lock_delay = lock_delay * 60
 while running:
+    clock.tick(60)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -128,24 +132,31 @@ while running:
                 current_peice.pos = (current_peice.pos[0], current_peice.pos[1] - 1)
                 for i in range(lines):
                     current_peice.pos = (current_peice.pos[0], 0)
-    print(current_peice.grounded)
     current_positions = current_peice.current_positions.keys()
     for sq_pos in current_positions:
-        print(sq_pos)
         if sq_pos[1] < 1 and current_peice.grounded == False:
             current_peice.grounded = True
-            
-            
+    if current_peice.grounded and lock_timer_enabled == False:
+        print("as")
+        lock_timer_enabled == True
+        print(lock_timer_enabled)
+        
+    if lock_timer_enabled and lock_timer >= lock_delay:
+        current_peice = peice(L, start_pos)
+        lock_timer = 0
+    lock_timer += 1
+        
+        
+    current_peice.draw()
     screen.fill((255, 255, 255))
     pygame.draw.rect(screen, (0,0,0), board)
     
-    clock.tick(60)
+    
     if gravity_wait > 60:
         current_peice.pos = (current_peice.pos[0],current_peice.pos[1] - 1)
         gravity_wait = 0
+    
     gravity_wait += 1
-        
-    current_peice.draw()
 
     for square in squares.values():
         pygame.draw.rect(screen, square["color"], square["rect"])
