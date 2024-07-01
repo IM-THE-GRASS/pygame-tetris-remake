@@ -26,11 +26,12 @@ J = {0:((0,0),(0,-1),(0,1),(-1,-1)),1:((0,0),(1,0),(-1,0),(1,-1)),2:((0,0),(0,-1
 S = {0:((0,0),(-1,0),(0,1),(1,1)),1:((0,0),(0,1),(1,0),(1,-1)),2:((0,0),(0,-1),(-1,-1),(1,0)),3:((0,0),(-1,0),(0,-1),(-1,1))}
 Z = {0:((0,0),(1, 0),(-1, 1),(0, 1)),1:((0,0),(-1,0),(0,1),(-1,-1)),2:((0,0),(-1,0),(0,-1),(1,-1)),3:((0,0),(0,-1),(1,1),(1,0))}
 peices = [I, T, O, L, J, S, Z]
-
+colors = {"I":(68, 114, 196),"T":(237, 125, 49),"O":(255, 192, 0),"L":(112, 48, 160),"J":(112, 173, 71),"S":(255, 0, 0),"Z":(0,0,255)}
 
 
 class peice:
     def __init__(self,shape, position) -> None:
+        print(colors.items()[peices.index(shape)])
         self.pos = position
         self.rotation = 0
         self.shape = shape
@@ -82,7 +83,7 @@ class peice:
         
         for square in new_current:
             position = squares[square]
-            position["color"] = (255,0,255)
+            position["color"] = self.color
             position["state"] = 1
             self.current_positions[square] = 1
             self.last_valid_pos = self.pos
@@ -108,7 +109,24 @@ def get_random_peice():
     random_peice = random.choice(peices)
     return random_peice
     
-        
+def clear_lines():
+    
+    for y in range(lines):
+        squares_in_row = {}
+        for x in range(columns):
+            squares_in_row[x] = squares[(x, y)]["state"] == 1
+        line_full = all(squares[(x, y)]["state"] == 1 for x in range(columns))
+        if line_full:
+            print(line_full)
+            for above_y in range(y + 1,start_pos[1]):
+                for x in range(columns):
+                    squares[(x, above_y - 1)]["state"] = squares[(x, above_y)]["state"]
+                    squares[(x, above_y - 1)]["color"] = squares[(x, above_y)]["color"]
+                    squares[(x, above_y)]["state"] = 0
+                    squares[(x, above_y)]["color"] = (255, 255, 255)
+                
+                
+                    
 
 screen = pygame.display.set_mode((window_width, window_height))
 pygame.display.set_caption("pygame tetris")
@@ -148,8 +166,6 @@ while running:
                 while worked == True:
                     current_peice.pos = (current_peice.pos[0], current_peice.pos[1] - 1)
                     worked = current_peice.draw()
-                    print(worked)
-                    print(current_peice.pos[1] - 1)
                 lock_timer = 999
                     
                     
@@ -170,7 +186,7 @@ while running:
             lock_timer = 0
         lock_timer += 1
         
-        
+    clear_lines()
     current_peice.draw()
     screen.fill((255, 255, 255))
     pygame.draw.rect(screen, (0,0,0), board)
